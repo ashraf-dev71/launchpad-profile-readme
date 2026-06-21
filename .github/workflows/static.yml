@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ipzone // Professional IP Intelligence</title>
+    <style>
+        /* 
+         * DESIGN TOKENS
+         */
+        :root {
+            --bg: #08080a;
+            --card: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #ffffff;
+            --text-muted: #94a3b8;
+            --accent: #00ffaa; /* Matrix Neon Green */
+            --accent-glow: rgba(0, 255, 170, 0.2);
+            --error: #ff4b4b;
+            --radius: 16px;
+            --blur: 20px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="light"] {
+            --bg: #f8fafc;
+            --card: rgba(255, 255, 255, 0.8);
+            --border: rgba(0, 0, 0, 0.06);
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --accent: #0ea5e9; /* Deep Sky Blue */
+            --accent-glow: rgba(14, 165, 233, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            transition: background 0.5s ease;
+            line-height: 1.5;
+        }
+
+        /* 
+         * NAV & HEADER
+         */
+        nav {
+            padding: 1.2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .logo span { color: var(--accent); }
+        .logo::after { content: '_'; color: var(--accent); animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .theme-btn {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 16px;
+            border-radius: 100px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 700;
+            transition: var(--transition);
+        }
+
+        /* 
+         * HERO SECTION
+         */
+        .hero {
+            padding: 4rem 1rem 2rem;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 { font-size: 3rem; font-weight: 800; margin-bottom: 1rem; }
+        
+        .search-area {
+            position: relative;
+            margin-top: 2.5rem;
+            display: flex;
+            gap: 10px;
+            background: var(--card);
+            padding: 10px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(var(--blur));
+            transition: var(--transition);
+        }
+
+        .search-area:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+
+        .search-area input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text);
+            padding: 0 15px;
+            font-size: 1.1rem;
+        }
+
+        .btn-scan {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 12px 25px;
+            border-radius: calc(var(--radius) - 6px);
+            font-weight: 800;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-scan:hover { filter: brightness(1.1); transform: scale(1.02); }
+
+        /* 
+         * THE "ZONE" DASHBOARD
+         */
+        .dashboard {
+            max-width: 1100px;
+            margin: 2rem auto;
+            padding: 0 2rem 5rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            backdrop-filter: blur(var(--blur));
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.2); }
+
+        .card-main {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .ip-text {
+            font-size: clamp(1.5rem, 5vw, 3rem);
+            font-family: 'Courier New', monospace;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .val { font-size: 1.25rem; font-weight: 600; }
+
+        .copy-chip {
+            background: var(--accent);
+            color: #000;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            cursor: pointer;
+            border: none;
+        }
+
+        /* 
+         * LOADING & ERROR
+         */
+        #loader {
+            height: 3px; width: 100%; background: transparent;
+            position: fixed; top: 0; left: 0; z-index: 1000; display: none;
+        }
+        #loader div { height: 100%; background: var(--accent); width: 30%; animation: load 1.5s infinite linear; box-shadow: 0 0 10px var(--accent); }
+        @keyframes load { 0% { margin-left: -30%; } 100% { margin-left: 100%; } }
+
+        .error-msg {
+            background: rgba(255, 75, 75, 0.1);
+            border: 1px solid var(--error);
+            color: var(--error);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            display: none;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .card-main { flex-direction: column; align-items: flex-start; gap: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loader"><div></div></div>
+
+    <nav>
+        <div class="logo">ip<span>zone</span></div>
+        <button class="theme-btn" id="themeToggle">LIGHT MODE</button>
+    </nav>
+
+    <main class="hero">
+        <h1>Global IP Intelligence</h1>
+        <p style="color: var(--text-muted)">Secure, real-time data lookup for any network address.</p>
+        
+        <div class="search-area">
+            <input type="text" id="ipInput" placeholder="Enter IP address (e.g. 1.1.1.1)" autocomplete="off">
+            <button class="btn-scan" id="scanBtn">SCAN</button>
+        </div>
+    </main>
+
+    <div class="dashboard">
+        <div id="errorBox" class="error-msg" style="grid-column: 1/-1;"></div>
+
+        <!-- Primary Display -->
+        <div class="card card-main">
+            <div>
+                <span class="label">Public IP Address</span>
+                <div class="ip-text" id="res-ip">0.0.0.0</div>
+            </div>
+            <button class="copy-chip" id="copyBtn">COPY IP</button>
+        </div>
+
+        <!-- Info Grid -->
+        <div class="card">
+            <span class="label">Network Provider</span>
+            <div class="val" id="res-isp">---</div>
+        </div>
+        <div class="card">
+            <span class="label">Location</span>
+            <div class="val" id="res-loc">---</div>
+        </div>
+        <div class="card">
+            <span class="label">Timezone</span>
+            <div class="val" id="res-tz">---</div>
+        </div>
+        <div class="card">
+            <span class="label">Coordinates</span>
+            <div class="val" id="res-coords">---</div>
+        </div>
+        <div class="card">
+            <span class="label">ASN</span>
+            <div class="val" id="res-asn">---</div>
+        </div>
+        <div class="card">
+            <span class="label">Connection Type</span>
+            <div class="val" id="res-type">---</div>
+        </div>
+    </div>
+
+    <script>
+        // ELEMENTS
+        const ui = {
+            ipInput: document.getElementById('ipInput'),
+            scanBtn: document.getElementById('scanBtn'),
+            themeBtn: document.getElementById('themeToggle'),
+            loader: document.getElementById('loader'),
+            error: document.getElementById('errorBox'),
+            copy: document.getElementById('copyBtn'),
+            // Data fields
+            resIp: document.getElementById('res-ip'),
+            resIsp: document.getElementById('res-isp'),
+            resLoc: document.getElementById('res-loc'),
+            resTz: document.getElementById('res-tz'),
+            resCoords: document.getElementById('res-coords'),
+            resAsn: document.getElementById('res-asn'),
+            resType: document.getElementById('res-type')
+        };
+
+        // THEME ENGINE
+        ui.themeBtn.addEventListener('click', () => {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const target = isDark ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', target);
+            ui.themeBtn.innerText = isDark ? 'DARK MODE' : 'LIGHT MODE';
+        });
+
+        // COPY FUNCTION
+        ui.copy.addEventListener('click', () => {
+            navigator.clipboard.writeText(ui.resIp.innerText);
+            ui.copy.innerText = 'COPIED!';
+            setTimeout(() => ui.copy.innerText = 'COPY IP', 2000);
+        });
+
+        // CORE DATA FETCHING (Multi-API Failover)
+        async function fetchIPInfo(targetIP = '') {
+            ui.loader.style.display = 'block';
+            ui.error.style.display = 'none';
+
+            try {
+                // ATTEMPT 1: ipwho.is (Best free for browsers)
+                const res = await fetch(`https://ipwho.is/${targetIP}`);
+                const data = await res.json();
+                
+                if (data.success || data.ip) {
+                    updateUI(data, 'ipwho');
+                } else {
+                    throw new Error("Switching to backup...");
+                }
+
+            } catch (err) {
+                // ATTEMPT 2: ipapi.co (Reliable backup)
+                try {
+                    const res2 = await fetch(`https://ipapi.co/${targetIP ? targetIP + '/' : ''}json/`);
+                    const data2 = await res2.json();
+                    if(data2.error) throw new Error();
+                    updateUI(data2, 'ipapi');
+                } catch (err2) {
+                    showError("Sensors offline. Check your internet or ad-blocker.");
+                }
+            } finally {
+                ui.loader.style.display = 'none';
+            }
+        }
+
+        function updateUI(data, provider) {
+            // Mapping fields based on which API responded
+            if (provider === 'ipwho') {
+                ui.resIp.innerText = data.ip;
+                ui.resIsp.innerText = data.connection.isp;
+                ui.resLoc.innerText = `${data.city}, ${data.country} ${data.flag.emoji}`;
+                ui.resTz.innerText = data.timezone.id;
+                ui.resCoords.innerText = `${data.latitude}, ${data.longitude}`;
+                ui.resAsn.innerText = data.connection.asn;
+                ui.resType.innerText = data.type || 'N/A';
+            } else {
+                ui.resIp.innerText = data.ip;
+                ui.resIsp.innerText = data.org;
+                ui.resLoc.innerText = `${data.city}, ${data.country_name} ${data.country_emoji || ''}`;
+                ui.resTz.innerText = data.timezone;
+                ui.resCoords.innerText = `${data.latitude}, ${data.longitude}`;
+                ui.resAsn.innerText = data.asn;
+                ui.resType.innerText = 'N/A';
+            }
+        }
+
+        function showError(m) {
+            ui.error.innerText = m;
+            ui.error.style.display = 'block';
+        }
+
+        // EVENT LISTENERS
+        ui.scanBtn.addEventListener('click', () => fetchIPInfo(ui.ipInput.value.trim()));
+        ui.ipInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') fetchIPInfo(ui.ipInput.value.trim()); });
+
+        // INITIAL LOAD (Auto-Detect)
+        window.onload = () => fetchIPInfo();
+    </script>
+</body>
+</html>
